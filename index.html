@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+<head> 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    const tg = window.Telegram.WebApp;
+    tg.expand(); // Esto hace que el juego ocupe toda la pantalla del celular
+    
+    // Si quieres mostrar el nombre real del usuario de Telegram:
+    if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        document.getElementById('user-name-display').innerText = tg.initDataUnsafe.user.first_name;
+    }
+</script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Stadium Tycoon: Pro Edition</title>
