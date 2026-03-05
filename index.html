@@ -9,6 +9,7 @@
         :root {
             --sky-blue: #87CEEB;
             --deep-blue: #1e3a8a;
+            --ton-blue: #0088cc;
             --neon-yellow: #ccff00;
             --glass: rgba(255, 255, 255, 0.2);
             --glass-border: rgba(255, 255, 255, 0.4);
@@ -46,28 +47,32 @@
         .main-counter { text-align: center; margin-top: 100px; }
         .coin-display { font-size: 45px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; color: #1e40af; }
 
-        /* --- JUGADOR 3D --- */
+        /* --- JUGADOR 3D PROFESIONAL --- */
         .stadium-center {
             position: relative; height: 45vh; display: flex; align-items: center; justify-content: center;
             perspective: 1000px;
         }
-        .player-3d {
-            font-size: 160px; cursor: pointer; transform-style: preserve-3d;
-            animation: move3d 4s infinite ease-in-out;
-            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.2));
-            user-select: none;
+        .player-card-3d {
+            width: 200px; height: 280px;
+            background: linear-gradient(135deg, #ffd700, #b8860b);
+            border-radius: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            transform-style: preserve-3d;
+            animation: float3d 4s infinite ease-in-out;
+            cursor: pointer; border: 5px solid white;
         }
-        @keyframes move3d {
-            0%, 100% { transform: rotateY(0deg) translateY(0); }
-            50% { transform: rotateY(20deg) translateY(-20px); }
+        .player-img { font-size: 100px; filter: drop-shadow(0 10px 10px rgba(0,0,0,0.3)); }
+        @keyframes float3d {
+            0%, 100% { transform: rotateY(-10deg) rotateX(5deg) translateY(0); }
+            50% { transform: rotateY(10deg) rotateX(-5deg) translateY(-20px); }
         }
-        .player-3d:active { transform: scale(0.9) rotateX(10deg); }
 
         .upgrade-float {
             position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
             background: var(--neon-yellow); color: black; padding: 15px;
             border-radius: 20px; border: 3px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            font-weight: 800; cursor: pointer; text-align: center;
+            font-weight: 800; cursor: pointer; text-align: center; z-index: 10;
         }
 
         /* --- VIEWS --- */
@@ -89,9 +94,14 @@
         }
         .modal-content { background: white; padding: 25px; border-radius: 30px; text-align: center; width: 100%; max-width: 350px; }
         
-        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; background: #f9f9f9; }
+        .wallet-option {
+            display: flex; align-items: center; gap: 15px; padding: 15px;
+            background: #f4f4f4; border-radius: 15px; margin-bottom: 10px;
+            cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        .wallet-option:hover { background: #e0e0e0; }
+
         .btn-claim { background: var(--deep-blue); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 10px; }
-        
         .card-pro { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
     </style>
 </head>
@@ -116,7 +126,10 @@
             <div class="coin-display">💰 <span id="score">0.00</span></div>
         </div>
         <div class="stadium-center">
-            <div class="player-3d" onclick="handleTap(event)">🏃‍♂️</div>
+            <div class="player-card-3d" onclick="handleTap(event)">
+                <div class="player-img">🏃‍♂️</div>
+                <div style="color: white; font-weight: 800; font-size: 20px;">STRIKER</div>
+            </div>
             <div class="upgrade-float" onclick="openUpgrade()">
                 <small>MEJORA</small><br>
                 <span id="up-cost-ton">0.1 TON</span>
@@ -132,10 +145,6 @@
         <div class="card-pro">
             <div><b>Ver Anuncio</b><br><small>+25 Monedas</small></div>
             <button class="btn-claim" onclick="openAd()" style="width:auto">VER</button>
-        </div>
-        <div class="card-pro">
-            <div><b>Invitar Amigo</b><br><small>+35 Monedas</small></div>
-            <button class="btn-claim" style="width:auto">INVITAR</button>
         </div>
         <h3 style="margin-top: 30px;">GLOBAL RANKING</h3>
         <div id="ranking" style="background: white; border-radius: 20px; padding: 10px;"></div>
@@ -154,36 +163,25 @@
         </div>
     </div>
 
-    <div id="settings-modal" class="modal">
+    <div id="connect-modal" class="modal">
         <div class="modal-content">
-            <h3>AJUSTES DE JUEGO</h3>
-            <label>Idioma:</label>
-            <select id="lang"><option>Español</option><option>English</option></select>
-            <label>Volumen:</label>
-            <input type="range" min="0" max="100" value="80">
-            <button class="btn-claim" onclick="closeModal('settings-modal')">GUARDAR</button>
-        </div>
-    </div>
-
-    <div id="profile-modal" class="modal">
-        <div class="modal-content">
-            <div class="avatar" style="width:60px; height:60px; margin: 0 auto 10px;"></div>
-            <h2 id="p-name">Eiber_Dev</h2>
-            <p>Nivel Actual: <b id="p-lvl">1</b></p>
-            <p>Monedas Totales: <b id="p-coins">0</b></p>
-            <button class="btn-claim" onclick="closeModal('profile-modal')">CERRAR</button>
+            <h3>VINCULAR BILLETERA</h3>
+            <div class="wallet-option" onclick="finalizeConnection('Tonkeeper')">💎 Tonkeeper</div>
+            <div class="wallet-option" onclick="finalizeConnection('MyTonWallet')">💼 MyTonWallet</div>
+            <div class="wallet-option" onclick="finalizeConnection('Tonhub')">🚀 Tonhub</div>
+            <button class="btn-claim" style="background:#ccc" onclick="closeModal('connect-modal')">CERRAR</button>
         </div>
     </div>
 
     <div id="ton-modal" class="modal">
         <div class="modal-content">
-            <h2 style="color: #0088cc">PAGAR EN TON</h2>
-            <p>Costo: <b id="ton-cost-display">0.1 TON</b></p>
-            <div style="background: #f0f9ff; padding: 10px; border-radius: 10px; font-size: 10px; word-break: break-all; border: 1px dashed #0088cc; margin-bottom: 15px;">
-                UQCa4JhWm99Dv9SfeW2fYskEd8VXY-SdJdrWY0auqx5Fm4j9
-            </div>
-            <button id="connect-btn" class="btn-claim" style="background:#0088cc" onclick="connectWallet()">CONECTAR BILLETERA</button>
-            <button id="buy-btn" class="btn-claim" style="display:none" onclick="processTonPayment()">COMPRAR AHORA</button>
+            <h2 style="color: #0088cc">CONFIRMAR COMPRA</h2>
+            <p>Se enviará el pago directamente a la cuenta del administrador.</p>
+            <p>Monto: <b id="ton-cost-display">0.1 TON</b></p>
+            
+            <button id="main-action-btn" class="btn-claim" style="background:#0088cc" onclick="openModal('connect-modal')">VINCULAR BILLETERA PRIMERO</button>
+            <button id="real-buy-btn" class="btn-claim" style="display:none; background:#22c55e" onclick="executeRealPayment()">PAGAR Y ACTUALIZAR</button>
+            
             <button class="btn-claim" style="background: #ccc;" onclick="closeModal('ton-modal')">CANCELAR</button>
         </div>
     </div>
@@ -191,7 +189,7 @@
     <div id="paypal-modal" class="modal">
         <div class="modal-content">
             <h3>RETIRO PAYPAL</h3>
-            <input type="text" id="pp-user" placeholder="Correo o Usuario de PayPal">
+            <input type="text" id="pp-user" placeholder="Correo o Usuario de PayPal" style="width:100%; padding:10px; margin-bottom:10px;">
             <button class="btn-claim" onclick="withdraw('PayPal')">SOLICITAR RETIRO</button>
             <button class="btn-claim" style="background:#ccc" onclick="closeModal('paypal-modal')">VOLVER</button>
         </div>
@@ -200,7 +198,7 @@
     <div id="binance-modal" class="modal">
         <div class="modal-content">
             <h3>RETIRO BINANCE</h3>
-            <input type="text" id="bn-id" placeholder="ID de Binance (Pay ID)">
+            <input type="text" id="bn-id" placeholder="ID de Binance (Pay ID)" style="width:100%; padding:10px; margin-bottom:10px;">
             <button class="btn-claim" onclick="withdraw('Binance')">SOLICITAR RETIRO</button>
             <button class="btn-claim" style="background:#ccc" onclick="closeModal('binance-modal')">VOLVER</button>
         </div>
@@ -217,6 +215,7 @@
         let lvl = parseInt(localStorage.getItem('st_lvl')) || 1;
         let perTap = 0.1 + (lvl - 1) * 0.1;
         let walletConnected = false;
+        const adminWallet = "UQCa4JhWm99Dv9SfeW2fYskEd8VXY-SdJdrWY0auqx5Fm4j9";
 
         setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 2000);
 
@@ -249,49 +248,47 @@
             if(tab === 'tasks') generateRanking();
         }
 
-        // --- LÓGICA DE MODALES ---
-        function openModal(id) { 
-            if(id === 'profile-modal'){
-                document.getElementById('p-lvl').innerText = lvl;
-                document.getElementById('p-coins').innerText = coins.toFixed(2);
-            }
-            document.getElementById(id).style.display = 'flex'; 
-        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // --- LÓGICA TON ---
         function openUpgrade() {
             let tonCost = (0.1 * lvl).toFixed(1);
             document.getElementById('ton-cost-display').innerText = tonCost + " TON";
+            if(walletConnected) {
+                document.getElementById('main-action-btn').style.display = 'none';
+                document.getElementById('real-buy-btn').style.display = 'block';
+            }
             openModal('ton-modal');
         }
 
-        function connectWallet() {
+        function finalizeConnection(walletName) {
             walletConnected = true;
-            document.getElementById('connect-btn').style.display = 'none';
-            document.getElementById('buy-btn').style.display = 'block';
-            alert("Billetera conectada exitosamente");
+            closeModal('connect-modal');
+            document.getElementById('main-action-btn').style.display = 'none';
+            document.getElementById('real-buy-btn').style.display = 'block';
+            alert("Vinculado con " + walletName);
         }
 
-        function processTonPayment() {
-            lvl++;
-            perTap = 0.1 + (lvl - 1) * 0.1;
-            updateUI();
-            closeModal('ton-modal');
-            alert("¡Transacción completada! Nivel actualizado.");
+        function executeRealPayment() {
+            let amount = (0.1 * lvl).toFixed(1);
+            // Genera el deep link de TON para enviar dinero real a tu billetera
+            const tonDeepLink = `ton://transfer/${adminWallet}?amount=${amount * 1000000000}&text=Upgrade_Stadium_Tycoon_Lvl_${lvl+1}`;
+            
+            window.location.href = tonDeepLink;
+
+            // Simulamos la confirmación (en producción esto requiere verificar el hash de la transacción)
+            setTimeout(() => {
+                lvl++;
+                perTap = 0.1 + (lvl - 1) * 0.1;
+                updateUI();
+                closeModal('ton-modal');
+                alert("¡Pago procesado! Tu nivel ha aumentado.");
+            }, 3000);
         }
 
         function openAd() {
             window.open("https://omg10.com/4/10663699", "_blank");
             coins += 25; updateUI();
-        }
-
-        function withdraw(method) {
-            if(coins < 50000) { // 5 USD = 50,000 monedas
-                alert("Saldo insuficiente. El mínimo es $5 USD (50,000 monedas)");
-                return;
-            }
-            alert("Solicitud enviada a " + method + ". Procesando...");
         }
 
         function updateUI() {
@@ -304,7 +301,7 @@
         }
 
         function generateRanking() {
-            const list = ["Mbappe_99", "CR7_Gold", "Messi_Goat", "Eiber_Dev (Tú)", "Ney_Dribble", "Halaand_Bot"];
+            const list = ["Mbappe_Pro", "CR7_King", "Messi_10", "Eiber_Dev (Tú)", "Ney_Skill", "Halaand_9"];
             let html = "";
             list.forEach((name, i) => {
                 html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
