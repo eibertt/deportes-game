@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Stadium Tycoon - Official</title>
+    <title>Stadium Tycoon - Tap to Earn</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -21,81 +21,121 @@
             height: 100vh; overflow: hidden;
         }
 
-        /* --- UI PREMIUM --- */
+        /* --- SPLASH SCREEN --- */
+        #splash {
+            position: fixed; inset: 0; background: radial-gradient(circle, #1a1a1a, #000);
+            z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .ball-3d {
+            font-size: 80px; animation: bounce 1s infinite alternate cubic-bezier(0.5, 0.05, 1, 0.5);
+            filter: drop-shadow(0 20px 30px rgba(57, 255, 20, 0.3));
+        }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-50px); } }
+        .loader-bar {
+            width: 200px; height: 4px; background: #333; border-radius: 10px; margin-top: 40px; overflow: hidden;
+        }
+        .loader-progress {
+            width: 0%; height: 100%; background: var(--neon-green); box-shadow: 0 0 15px var(--neon-green);
+            animation: load 2.5s forwards;
+        }
+        @keyframes load { to { width: 100%; } }
+
+        /* --- UI ELEGANTE (Header & Nav) --- */
         .header {
             position: fixed; top: 0; width: 100%; height: 80px;
             background: var(--glass); backdrop-filter: blur(15px);
             display: flex; align-items: center; justify-content: space-between;
             padding: 0 20px; border-bottom: 1px solid var(--glass-border); z-index: 100;
         }
-        .balance-main { font-family: 'Orbitron', sans-serif; color: var(--electric-gold); font-size: 18px; }
+        .user-profile { display: flex; align-items: center; gap: 10px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--neon-green); background: #333; }
+        .balance-main { font-family: 'Orbitron', sans-serif; color: var(--electric-gold); font-size: 18px; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
 
         .navbar {
-            position: fixed; bottom: 0; width: 100%; height: 75px;
+            position: fixed; bottom: 0; width: 100%; height: 70px;
             background: var(--glass); backdrop-filter: blur(20px);
             display: flex; justify-content: space-around; align-items: center;
             border-top: 1px solid var(--glass-border); z-index: 100;
         }
-        .nav-item { color: #666; font-size: 10px; text-transform: uppercase; font-weight: bold; cursor: pointer; text-align: center; }
-        .nav-item.active { color: var(--neon-green); }
+        .nav-item { color: #666; font-size: 10px; text-transform: uppercase; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .nav-item.active { color: var(--neon-green); transform: translateY(-5px); }
 
-        .view { display: none; height: 100vh; padding: 100px 20px 90px; overflow-y: auto; }
+        /* --- VISTAS --- */
+        .view { display: none; height: 100vh; padding: 100px 20px 80px; overflow-y: auto; }
         .view.active { display: block; }
 
-        /* MODAL DE PAGO */
-        #payment-modal {
-            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-            z-index: 2000; flex-direction: column; align-items: center; justify-content: center; padding: 30px;
+        /* HOME: EL ESTADIO */
+        .stadium-bg {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;
         }
-        .ton-card { background: var(--panel); border: 2px solid var(--neon-green); padding: 20px; border-radius: 20px; text-align: center; }
-
-        /* BOTONES */
-        .btn-action {
-            background: linear-gradient(45deg, var(--electric-gold), #b8860b);
-            color: black; padding: 12px; border-radius: 12px; font-weight: bold; 
-            font-family: 'Orbitron'; border: none; cursor: pointer; width: 100%; margin: 5px 0;
+        .player-model {
+            font-size: 150px; cursor: pointer; transition: transform 0.1s;
+            animation: idle 3s infinite ease-in-out; position: relative;
         }
-        .btn-ad { background: var(--neon-green); color: black; }
+        @keyframes idle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .player-model:active { transform: scale(0.9) rotate(-5deg); }
 
-        /* ELEMENTOS DEL JUEGO */
-        .player-model { font-size: 130px; cursor: pointer; transition: 0.1s; animation: idle 3s infinite ease-in-out; }
-        @keyframes idle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-        .player-model:active { transform: scale(0.95); }
+        .btn-upgrade {
+            position: absolute; right: 20px; top: 150px; background: linear-gradient(45deg, var(--electric-gold), #b8860b);
+            color: black; padding: 10px 15px; border-radius: 10px; font-weight: bold; font-family: 'Orbitron';
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); border: none; cursor: pointer;
+        }
 
-        .task-card { background: var(--glass); padding: 20px; border-radius: 15px; margin-bottom: 15px; border-left: 4px solid var(--neon-green); }
+        /* TAREAS: THE ARENA */
+        .task-card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            padding: 15px; border-radius: 15px; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .ranking-table { margin-top: 20px; background: rgba(0,0,0,0.5); border-radius: 15px; padding: 10px; }
+        .rank-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; }
+        .gold { color: var(--electric-gold); }
+
+        /* BILLETERA: THE VAULT */
+        .wallet-card {
+            background: linear-gradient(135deg, #1e1e1e, #000); padding: 30px;
+            border-radius: 20px; border: 1px solid var(--neon-green); text-align: center;
+        }
+        .btn-withdraw {
+            background: var(--neon-green); color: black; border: none;
+            width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; margin-top: 20px;
+        }
+
+        /* EFECTOS */
+        .coin-pop {
+            position: absolute; color: var(--electric-gold); font-weight: bold;
+            font-family: 'Orbitron'; pointer-events: none; animation: popUp 0.8s forwards;
+        }
+        @keyframes popUp { to { transform: translateY(-100px); opacity: 0; } }
     </style>
 </head>
 <body>
 
+    <div id="splash">
+        <div class="ball-3d">⚽</div>
+        <h2 style="font-family: 'Orbitron'; letter-spacing: 5px; margin-top: 20px;">STADIUM TYCOON</h2>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+        <p style="font-size: 10px; color: #555; margin-top: 10px;">PREMIUM MOBILE EXPERIENCE</p>
+    </div>
+
     <header class="header">
-        <div style="font-size: 24px;">⚙️</div>
-        <div style="text-align: right;">
-            <div style="font-size: 10px; opacity: 0.6;">STADIUM BALANCE</div>
-            <div class="balance-main">$<span id="balance">0.00</span></div>
+        <div style="font-size: 20px; color: var(--neon-green);">⚙️</div>
+        <div class="user-profile">
+            <div style="text-align: right;">
+                <div style="font-size: 10px; opacity: 0.7;">TOTAL EARNINGS</div>
+                <div class="balance-main">$<span id="balance">0.00</span></div>
+            </div>
+            <div class="avatar"></div>
         </div>
     </header>
 
-    <div id="payment-modal">
-        <div class="ton-card">
-            <h3 style="font-family: 'Orbitron'; color: var(--electric-gold);">COMPRAR UPGRADE</h3>
-            <p style="font-size: 12px;">Envía el pago a la siguiente dirección TON para activar tu nivel:</p>
-            <div style="background: #000; padding: 10px; border-radius: 10px; font-size: 10px; word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">
-                UQCa4JhWm99Dv9SfeW2fYskEd8VXY-SdJdrWY0auqx5Fm4j9
-            </div>
-            <button class="btn-action" onclick="copyTON()">COPIAR BILLETERA</button>
-            <button class="btn-action" style="background: #333; color: white;" onclick="closeModal()">CERRAR</button>
-        </div>
-    </div>
-
     <div id="home" class="view active">
-        <div style="text-align: center; margin-top: 50px;">
+        <div class="stadium-bg">
+            <button class="btn-upgrade" onclick="buyUpgrade()">LVL <span id="lvl">1</span><br><span id="up-cost">$1.0</span></button>
             <div id="player" class="player-model" onclick="tapAction(event)">🏃‍♂️</div>
-            <h1 style="font-family: 'Orbitron'; margin-top: 20px;">LVL <span id="lvl">1</span></h1>
-            <p style="color: var(--neon-green);">+<span id="multiplier">0.1</span> PER TAP</p>
-            
-            <div style="margin-top: 30px;">
-                <button class="btn-action" onclick="buyUpgrade()">UPGRADE (COST: <span id="up-cost">$1.0</span>)</button>
-                <button class="btn-action btn-ad" onclick="openAd()">🎁 BONUS EXTRA (ADS)</button>
+            <div style="margin-top: 40px; text-align: center;">
+                <p style="font-size: 12px; opacity: 0.6;">TAP TO COLLECT COINS</p>
+                <div style="color: var(--neon-green); font-family: 'Orbitron'; font-size: 24px;">+<span id="multiplier">0.1</span></div>
             </div>
         </div>
     </div>
@@ -103,47 +143,73 @@
     <div id="tasks" class="view">
         <h2 style="font-family: 'Orbitron'; color: var(--neon-green);">THE ARENA</h2>
         <div class="task-card">
-            <b>Daily Training</b><br><small>+50 Coins</small>
-            <button class="btn-action btn-ad" style="height: 35px; padding: 0;" onclick="openAd()">START</button>
+            <div><b>Watch Highlights</b><br><small>+25 Coins</small></div>
+            <button class="btn-upgrade" style="position:static; padding:5px 10px;">WATCH</button>
         </div>
         <div class="task-card">
-            <b>Stadium Sponsorship</b><br><small>+35 Coins</small>
-            <button class="btn-action btn-ad" style="height: 35px; padding: 0;" onclick="openAd()">VIEW ADS</button>
+            <div><b>Share League Link</b><br><small>+20 Coins</small></div>
+            <button class="btn-upgrade" style="position:static; padding:5px 10px;">SHARE</button>
+        </div>
+        
+        <h3 style="font-family: 'Orbitron'; margin-top: 30px;">GLOBAL RANKING</h3>
+        <div class="ranking-table">
+            <div class="rank-row gold"><span>🥇 Mbappe_TY7</span> <span>$1,420.50</span></div>
+            <div class="rank-row" style="color:#c0c0c0"><span>🥈 CryptoKick</span> <span>$980.20</span></div>
+            <div class="rank-row" style="color:#cd7f32"><span>🥉 Eiber_Dev</span> <span>$850.00</span></div>
+            <div class="rank-row"><span>4. Neymar_Jr10</span> <span>$520.10</span></div>
         </div>
     </div>
 
-    <div id="vault" class="view">
+    <div id="view-wallet" class="view">
         <h2 style="font-family: 'Orbitron';">THE VAULT</h2>
-        <div style="background: linear-gradient(135deg, #1a1a1a, #000); padding: 30px; border-radius: 20px; border: 1px solid var(--neon-green);">
-            <p style="font-size: 12px; opacity: 0.7;">TOTAL WITHDRAWABLE</p>
-            <div style="font-size: 35px; color: var(--neon-green); font-family: 'Orbitron';">$<span id="vault-val">0.00</span></div>
+        <div class="wallet-card">
+            <p>CONVERTED BALANCE</p>
+            <div class="balance" style="font-size: 40px; color: var(--neon-green);">$<span id="usd-val">0.00</span></div>
+            <p style="font-size: 10px; opacity: 0.5;">Rate: 10,000 Coins = $1.00 USD</p>
         </div>
-        <button class="btn-action" style="margin-top: 20px; background: #0070ba; color: white;">WITHDRAW VIA PAYPAL</button>
-        <button class="btn-action" style="background: #f3ba2f; color: black;">WITHDRAW VIA BINANCE</button>
-        <p style="font-size: 10px; margin-top: 15px; opacity: 0.5;">MINIMUM CASH OUT: $5.00 USD</p>
+
+        <div style="margin-top: 30px;">
+            <button class="btn-withdraw" style="background:#0070ba; color:white;">WITHDRAW VIA PAYPAL</button>
+            <button class="btn-withdraw" style="background:#f3ba2f; color:black;">WITHDRAW VIA BINANCE</button>
+        </div>
+        
+        <p style="font-size: 11px; margin-top: 20px; opacity: 0.6;">MINIMUM WITHDRAWAL: $5.00 USD</p>
     </div>
 
     <nav class="navbar">
-        <div class="nav-item active" onclick="switchView('home', this)">🏠<br>STADIUM</div>
-        <div class="nav-item" onclick="switchView('tasks', this)">🏆<br>ARENA</div>
-        <div class="nav-item" onclick="switchView('vault', this)">🏦<br>VAULT</div>
+        <div class="nav-item active" onclick="switchView('home', this)">🏠<br>Stadium</div>
+        <div class="nav-item" onclick="switchView('tasks', this)">🏆<br>Arena</div>
+        <div class="nav-item" onclick="switchView('view-wallet', this)">🏦<br>Vault</div>
     </nav>
 
     <script>
+        // ESTADO GLOBAL
         let coins = parseFloat(localStorage.getItem('st_coins')) || 0;
         let lvl = parseInt(localStorage.getItem('st_lvl')) || 1;
         let multiplier = 0.1 + (lvl - 1) * 0.1;
 
+        // ANIMACIÓN SPLASH
+        setTimeout(() => {
+            document.getElementById('splash').style.display = 'none';
+        }, 2500);
+
         function tapAction(e) {
             coins += multiplier;
             updateUI();
-            if (navigator.vibrate) navigator.vibrate(15);
+            createCoinEffect(e.clientX, e.clientY);
+            
+            // Sonido "Clink" (Simulado con vibración)
+            if (navigator.vibrate) navigator.vibrate(10);
         }
 
-        function openAd() {
-            window.open("https://omg10.com/4/10663699", "_blank");
-            coins += 0.5; // Bono por ver anuncio
-            updateUI();
+        function createCoinEffect(x, y) {
+            const coin = document.createElement('div');
+            coin.classList.add('coin-pop');
+            coin.innerText = '+$' + multiplier.toFixed(1);
+            coin.style.left = x + 'px';
+            coin.style.top = y + 'px';
+            document.body.appendChild(coin);
+            setTimeout(() => coin.remove(), 800);
         }
 
         function buyUpgrade() {
@@ -153,34 +219,29 @@
                 lvl++;
                 multiplier = 0.1 + (lvl - 1) * 0.1;
                 updateUI();
-                alert("CONGRATS! You are now Level " + lvl);
+                localStorage.setItem('st_lvl', lvl);
+                alert("LEVEL UP! Now earning more per tap.");
             } else {
-                document.getElementById('payment-modal').style.display = 'flex';
+                alert("INSUFFICIENT FUNDS. Need $" + cost.toFixed(1));
+                // Aquí podrías integrar el link de pago a tu cuenta de admin
+                // window.location.href = "tu_link_de_pago";
             }
         }
 
-        function copyTON() {
-            navigator.clipboard.writeText("UQCa4JhWm99Dv9SfeW2fYskEd8VXY-SdJdrWY0auqx5Fm4j9");
-            alert("Billetera copiada. ¡Realiza tu pago para subir de nivel!");
+        function updateUI() {
+            document.getElementById('balance').innerText = coins.toFixed(2);
+            document.getElementById('usd-val').innerText = coins.toFixed(2);
+            document.getElementById('lvl').innerText = lvl;
+            document.getElementById('multiplier').innerText = multiplier.toFixed(1);
+            document.getElementById('up-cost').innerText = '$' + (1.0 + (lvl - 1) * 0.5).toFixed(1);
+            localStorage.setItem('st_coins', coins);
         }
-
-        function closeModal() { document.getElementById('payment-modal').style.display = 'none'; }
 
         function switchView(viewId, el) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(viewId).classList.add('active');
             el.classList.add('active');
-        }
-
-        function updateUI() {
-            document.getElementById('balance').innerText = coins.toFixed(2);
-            document.getElementById('vault-val').innerText = coins.toFixed(2);
-            document.getElementById('lvl').innerText = lvl;
-            document.getElementById('multiplier').innerText = multiplier.toFixed(1);
-            document.getElementById('up-cost').innerText = '$' + (1.0 + (lvl - 1) * 0.5).toFixed(1);
-            localStorage.setItem('st_coins', coins);
-            localStorage.setItem('st_lvl', lvl);
         }
 
         window.onload = updateUI;
