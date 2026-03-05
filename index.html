@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stadium Tycoon - Official</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-green: #39ff14;
+            --electric-gold: #ffd700;
+            --matte-black: #0e1212;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; padding: 0; background: var(--matte-black); 
+            color: white; font-family: 'Montserrat', sans-serif; 
+            height: 100vh; overflow: hidden;
+        }
+
+        /* --- UI PREMIUM --- */
+        .header {
+            position: fixed; top: 0; width: 100%; height: 80px;
+            background: var(--glass); backdrop-filter: blur(15px);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; border-bottom: 1px solid var(--glass-border); z-index: 100;
+        }
+        .balance-main { font-family: 'Orbitron', sans-serif; color: var(--electric-gold); font-size: 18px; }
+
+        .navbar {
+            position: fixed; bottom: 0; width: 100%; height: 75px;
+            background: var(--glass); backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid var(--glass-border); z-index: 100;
+        }
+        .nav-item { color: #666; font-size: 10px; text-transform: uppercase; font-weight: bold; cursor: pointer; text-align: center; }
+        .nav-item.active { color: var(--neon-green); }
+
+        .view { display: none; height: 100vh; padding: 100px 20px 90px; overflow-y: auto; }
+        .view.active { display: block; }
+
+        /* MODAL DE PAGO */
+        #payment-modal {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            z-index: 2000; flex-direction: column; align-items: center; justify-content: center; padding: 30px;
+        }
+        .ton-card { background: var(--panel); border: 2px solid var(--neon-green); padding: 20px; border-radius: 20px; text-align: center; }
+
+        /* BOTONES */
+        .btn-action {
+            background: linear-gradient(45deg, var(--electric-gold), #b8860b);
+            color: black; padding: 12px; border-radius: 12px; font-weight: bold; 
+            font-family: 'Orbitron'; border: none; cursor: pointer; width: 100%; margin: 5px 0;
+        }
+        .btn-ad { background: var(--neon-green); color: black; }
+
+        /* ELEMENTOS DEL JUEGO */
+        .player-model { font-size: 130px; cursor: pointer; transition: 0.1s; animation: idle 3s infinite ease-in-out; }
+        @keyframes idle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+        .player-model:active { transform: scale(0.95); }
+
+        .task-card { background: var(--glass); padding: 20px; border-radius: 15px; margin-bottom: 15px; border-left: 4px solid var(--neon-green); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div style="font-size: 24px;">⚙️</div>
+        <div style="text-align: right;">
+            <div style="font-size: 10px; opacity: 0.6;">STADIUM BALANCE</div>
+            <div class="balance-main">$<span id="balance">0.00</span></div>
+        </div>
+    </header>
+
+    <div id="payment-modal">
+        <div class="ton-card">
+            <h3 style="font-family: 'Orbitron'; color: var(--electric-gold);">COMPRAR UPGRADE</h3>
+            <p style="font-size: 12px;">Envía el pago a la siguiente dirección TON para activar tu nivel:</p>
+            <div style="background: #000; padding: 10px; border-radius: 10px; font-size: 10px; word-break: break-all; margin: 15px 0; border: 1px dashed var(--neon-green);">
+                UQCa4JhWm99Dv9SfeW2fYskEd8VXY-SdJdrWY0auqx5Fm4j9
+            </div>
+            <button class="btn-action" onclick="copyTON()">COPIAR BILLETERA</button>
+            <button class="btn-action" style="background: #333; color: white;" onclick="closeModal()">CERRAR</button>
+        </div>
+    </div>
+
+    <div id="home" class="view active">
+        <div style="text-align: center; margin-top: 50px;">
+            <div id="player" class="player-model" onclick="tapAction(event)">🏃‍♂️</div>
+            <h1 style="font-family: 'Orbitron'; margin-top: 20px;">LVL <span id="lvl">1</span></h1>
+            <p style="color: var(--neon-green);">+<span id="multiplier">0.1</span> PER TAP</p>
+            
+            <div style="margin-top: 30px;">
+                <button class="btn-action" onclick="buyUpgrade()">UPGRADE (COST: <span id="up-cost">$1.0</span>)</button>
+                <button class="btn-action btn-ad" onclick="openAd()">🎁 BONUS EXTRA (ADS)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="tasks" class="view">
+        <h2 style="font-family: 'Orbitron'; color: var(--neon-green);">THE ARENA</h2>
+        <div class="task-card">
+            <b>Daily Training</b><br><small>+50 Coins</small>
+            <button class="btn-action btn-ad" style="height: 35px; padding: 0;" onclick="openAd()">START</button>
+        </div>
+        <div class="task-card">
+            <b>Stadium Sponsorship</b><br><small>+35 Coins</small>
+            <button class="btn-action btn-ad" style="height: 35px; padding: 0;" onclick="openAd()">VIEW ADS</button>
+        </div>
+    </div>
+
+    <div id="vault" class="view">
+        <h2 style="font-family: 'Orbitron';">THE VAULT</h2>
+        <div style="background: linear-gradient(135deg, #1a1a1a, #000); padding: 30px; border-radius: 20px; border: 1px solid var(--neon-green);">
+            <p style="font-size: 12px; opacity: 0.7;">TOTAL WITHDRAWABLE</p>
+            <div style="font-size: 35px; color: var(--neon-green); font-family: 'Orbitron';">$<span id="vault-val">0.00</span></div>
+        </div>
+        <button class="btn-action" style="margin-top: 20px; background: #0070ba; color: white;">WITHDRAW VIA PAYPAL</button>
+        <button class="btn-action" style="background: #f3ba2f; color: black;">WITHDRAW VIA BINANCE</button>
+        <p style="font-size: 10px; margin-top: 15px; opacity: 0.5;">MINIMUM CASH OUT: $5.00 USD</p>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-item active" onclick="switchView('home', this)">🏠<br>STADIUM</div>
+        <div class="nav-item" onclick="switchView('tasks', this)">🏆<br>ARENA</div>
+        <div class="nav-item" onclick="switchView('vault', this)">🏦<br>VAULT</div>
+    </nav>
+
+    <script>
+        let coins = parseFloat(localStorage.getItem('st_coins')) || 0;
+        let lvl = parseInt(localStorage.getItem('st_lvl')) || 1;
+        let multiplier = 0.1 + (lvl - 1) * 0.1;
+
+        function tapAction(e) {
+            coins += multiplier;
+            updateUI();
+            if (navigator.vibrate) navigator.vibrate(15);
+        }
+
+        function openAd() {
+            window.open("https://omg10.com/4/10663699", "_blank");
+            coins += 0.5; // Bono por ver anuncio
+            updateUI();
+        }
+
+        function buyUpgrade() {
+            let cost = 1.0 + (lvl - 1) * 0.5;
+            if (coins >= cost) {
+                coins -= cost;
+                lvl++;
+                multiplier = 0.1 + (lvl - 1) * 0.1;
+                updateUI();
+                alert("CONGRATS! You are now Level " + lvl);
+            } else {
+                document.getElementById('payment-modal').style.display = 'flex';
+            }
+        }
+
+        function copyTON() {
+            navigator.clipboard.writeText("UQCa4JhWm99Dv9SfeW2fYskEd8VXY-SdJdrWY0auqx5Fm4j9");
+            alert("Billetera copiada. ¡Realiza tu pago para subir de nivel!");
+        }
+
+        function closeModal() { document.getElementById('payment-modal').style.display = 'none'; }
+
+        function switchView(viewId, el) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            el.classList.add('active');
+        }
+
+        function updateUI() {
+            document.getElementById('balance').innerText = coins.toFixed(2);
+            document.getElementById('vault-val').innerText = coins.toFixed(2);
+            document.getElementById('lvl').innerText = lvl;
+            document.getElementById('multiplier').innerText = multiplier.toFixed(1);
+            document.getElementById('up-cost').innerText = '$' + (1.0 + (lvl - 1) * 0.5).toFixed(1);
+            localStorage.setItem('st_coins', coins);
+            localStorage.setItem('st_lvl', lvl);
+        }
+
+        window.onload = updateUI;
+    </script>
+</body>
+</html>
